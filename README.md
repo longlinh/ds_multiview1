@@ -1,16 +1,29 @@
-# Multi-View Remote Sensing Datasets
+# Multi-View Datasets for MPFC & SS-MPFC Research
 
-Bộ sưu tập 3 datasets multi-view cho bài toán **satellite image segmentation/clustering**
+Bộ sưu tập **7 datasets multi-view** phục vụ nghiên cứu MPFC/SS-MPFC clustering.
 
-## Tổng Quan Datasets
+## Tổng Quan
+
+### A. SS-MPFC — Remote Sensing Datasets (3 datasets)
 
 | Dataset | Samples | Clusters | Views | Total Features | Format |
 |---------|---------|----------|-------|----------------|--------|
-| **Augsburg** | 78,294* | 7 | 3 | 185 (180+4+1) | .mat |
-| **MUUFL Gulfport** | 53,687* | 11 | 2 | 66 (64+2) | .mat |
-| **Trento** | 30,214* | 6 | 2 | 65 (63+2) | .mat |
+| **Augsburg** | 78,294* | 7 | 3 | 185 (HS:180 + SAR:4 + DSM:1) | .mat |
+| **MUUFL Gulfport** | 53,687* | 11 | 2 | 66 (HS:64 + LiDAR:2) | .mat |
+| **Trento** | 30,214* | 6 | 2 | 65 (HS:63 + LiDAR:2) | .mat |
 
 *Số samples là số pixels có nhãn (labeled pixels), không phải tổng số pixels trong ảnh.
+
+### B. MPFC — Multi-View Benchmark Datasets (4 datasets)
+
+| Dataset | Samples | Clusters | Views | Dimensions/view | Format |
+|---------|---------|----------|-------|-----------------|--------|
+| **3Sources** | 169 | 6 | 3 | BBC:3560, Reuters:3068, Guardian:3631 | .mat |
+| **MSRC-v5** | 210 | 7 | 5 | CM:24, HOG:576, GIST:512, LBP:256, CENT:254 | .mat |
+| **Wikipedia-test** | 693 | 10 | 2 | Word:128, SIFT:10 | .mat |
+| **CiteSeer** | 3,312 | 6 | 2 | Content:3703, Cites:4732 | .mat |
+
+**Nguồn**: [ChuanbinZhang/Multi-view-datasets](https://github.com/ChuanbinZhang/Multi-view-datasets). Cấu trúc .mat: `X` (cell array of views), `y` (labels).
 
 ---
 
@@ -508,4 +521,96 @@ y = augsburg_data['gt']
 
 ---
 
-*Created: 2026-01-10*
+---
+
+## 4. Dataset 3Sources (text, 3 views)
+
+- **Mô tả**: 169 tin tức từ 3 hãng: BBC, Reuters, The Guardian. 6 chủ đề: business, entertainment, health, politics, sport, technology. Mỗi view = word histogram.
+- **Nguồn**: University College Dublin — [http://mlg.ucd.ie/datasets/3sources.html](http://mlg.ucd.ie/datasets/3sources.html)
+- **Paper**: MPFC (CMC 2025, DOI: 10.32604/cmc.2025.065127)
+
+```
+3Sources/
+└── 3Sources.mat    # X: {(169,3560), (169,3631), (169,3068)}, y: (169,)
+```
+
+### Cách load
+```python
+import scipy.io as sio
+data = sio.loadmat('3Sources/3Sources.mat')
+X = data['X']  # cell array: X[0,0]=(169,3560), X[0,1]=(169,3631), X[0,2]=(169,3068)
+y = data['y'].flatten()  # (169,), 6 classes
+```
+
+---
+
+## 5. Dataset MSRC-v5 (image, 5 views)
+
+- **Mô tả**: 210 ảnh, 7 object types. 5 views trích xuất đặc trưng: Color Moments (24-D), HOG (576-D), GIST (512-D), LBP (256-D), CENTRIST (254-D).
+- **Nguồn**: Microsoft Research Cambridge
+- **Paper**: MPFC (CMC 2025)
+
+```
+MSRC-v5/
+└── MSRC-v5.mat    # X: 5 views, y: (210,), 7 classes
+```
+
+### Cách load
+```python
+data = sio.loadmat('MSRC-v5/MSRC-v5.mat')
+X = data['X']  # X[0,i] for view i (i=0..4)
+y = data['y'].flatten()  # (210,), 7 classes
+# View dims: 24, 576, 512, 256, 254
+```
+
+---
+
+## 6. Dataset Wikipedia-test (text+image, 2 views)
+
+- **Mô tả**: 693 cặp text-image từ Wikipedia Featured Articles, 10 categories. View 1: word histograms (128-D), View 2: SIFT (10-D).
+- **Nguồn**: SVCL/UCSD — [http://www.svcl.ucsd.edu/projects/crossmodal/](http://www.svcl.ucsd.edu/projects/crossmodal/)
+- **Paper**: MPFC (CMC 2025)
+
+```
+Wikipedia-test/
+└── Wikipedia-test.mat    # X: 2 views, y: (693,), 10 classes
+```
+
+### Cách load
+```python
+data = sio.loadmat('Wikipedia-test/Wikipedia-test.mat')
+X = data['X']  # X[0,0]=(693,128), X[0,1]=(693,10)
+y = data['y'].flatten()  # (693,), 10 classes
+```
+
+---
+
+## 7. Dataset CiteSeer (citation network, 2 views)
+
+- **Mô tả**: 3312 publications khoa học, 6 lĩnh vực (Agents, IR, DB, AI, HCI, ML). View 1: citation links (3312-D). View 2: binary word vector (3703-D).
+- **Nguồn**: [LINQS](https://linqs.org/datasets/)
+- **Paper**: MPFC (CMC 2025)
+
+```
+CiteSeer/
+└── CiteSeer.mat    # X: 2 views, y: (3312,), 6 classes
+```
+
+### Cách load
+```python
+data = sio.loadmat('CiteSeer/CiteSeer.mat')
+X = data['X']  # X[0,0]=(3312,3312), X[0,1]=(3312,3703)
+y = data['y'].flatten()  # (3312,), 6 classes
+```
+
+---
+
+## Paper References
+
+| Paper | Datasets | DOI |
+|-------|----------|-----|
+| **MPFC** (CMC 2025, vol.83(3)) | 3Sources, MSRC-v5, Wikipedia-test, CiteSeer | [10.32604/cmc.2025.065127](https://doi.org/10.32604/cmc.2025.065127) |
+| **SS-MPFC** (CMC 2025) | Augsburg, Trento, MUUFL | [10.32604/cmc.2025.071776](https://doi.org/10.32604/cmc.2025.071776) |
+| **Hong et al.** (IEEE TGRS 2021) | Augsburg, Trento, MUUFL | [10.1109/TGRS.2020.3016820](https://doi.org/10.1109/TGRS.2020.3016820) |
+
+*Updated: 2026-02-20*
